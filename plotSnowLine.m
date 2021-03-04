@@ -4,7 +4,9 @@
 % Copernicus 30 m DEM resampled to 20m
 [z,R]=geotiffread('ROIbb2/dem');
 % Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)
-f=geotiffread('ROIbb2/fsc05feb');
+d='05feb'; 
+%d='10feb';
+f=geotiffread(['ROIbb2/fsc' d]);
 % pixel area in km2
 a=1e-6*R.SampleSpacingInWorldX*R.SampleSpacingInWorldY;
 %% Prepare masks
@@ -38,7 +40,7 @@ pspl=@(x) nnz(ixs&z<x) + nnz(ixns&z>x);
 zs=fminbnd(pspl,double(z1),double(z2),optimset('TolX',10));
 %% Test result
 figure(1),clf,hold on
-zx=1000:100:3000;
+zx=z1:100:z2;
 plot(zx,arrayfun(pspl,zx),'-')
 plot(zs,pspl(zs),'ro')
 ylabel('P_S+P_L')
@@ -55,4 +57,4 @@ set(hrf,'Color','r','LineStyle','--','LineWidth',2)
 xlabel('Area (sq. km)')
 ylabel('Elevation (m above WGS84)')
 legend('All pixels','Cloud','Snow','Snowline')
-title(sprintf('%s snowline: %4.4g m above WGS-84','05 Feb 2021',zs))
+title(sprintf('%s snowline: %4.4g m above WGS-84',d,zs))
