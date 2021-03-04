@@ -1,4 +1,9 @@
-Compute regional snow line elevation (RSLE) in Chamoli disaster region before and after the flood (05 and 10 Feb 2021)
+Code to compute the change in regional snow line elevation (RSLE) in the Chamoli region before and after the 07 Feb 2021 disaster
+
+<img src="https://user-images.githubusercontent.com/29677722/110033109-4047fe80-7d39-11eb-9dc8-996826a462bc.png" width="300"> 
+
+[Map source](https://umap.openstreetmap.fr/fr/map/region-of-interest-for-chamoli-snow_571403)
+
 
 Contents
 --------
