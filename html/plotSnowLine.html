@@ -1,0 +1,170 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>plotSnowLine</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-03-04"><meta name="DC.source" content="plotSnowLine.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Load data</a></li><li><a href="#2">Prepare masks</a></li><li><a href="#3">Count pixels by elevation bins</a></li><li><a href="#4">Find snowline elevation</a></li><li><a href="#5">Test result</a></li><li><a href="#6">Plot results</a></li></ul></div><h2>Load data<a name="1"></a></h2><p>Data in WGS84 UTM44N, 20m resolution, extent 340200m 3391600m 402980m 3338560m Copernicus 30 m DEM resampled to 20m</p><pre class="codeinput">[z,R]=geotiffread(<span class="string">'ROIbb2/dem'</span>);
+<span class="comment">% Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)</span>
+f=geotiffread(<span class="string">'ROIbb2/fsc05feb'</span>);
+<span class="comment">% pixel area in km2</span>
+a=1e-6*R.SampleSpacingInWorldX*R.SampleSpacingInWorldY;
+</pre><h2>Prepare masks<a name="2"></a></h2><p>no snow mask</p><pre class="codeinput">ixns=f==0;
+<span class="comment">% snow mask</span>
+ixs=f&gt;0&amp;f&lt;=100;
+<span class="comment">% cloud mask</span>
+ixc=f&gt;100;
+</pre><h2>Count pixels by elevation bins<a name="3"></a></h2><p>lower elevation edge</p><pre class="codeinput">z1=round(min(z(:))/100)*100;
+<span class="comment">% upper elevation edge</span>
+z2=round(max(z(:))/100)*100;
+<span class="comment">% elevation bins edges</span>
+z_edges = z1:100:z2;
+<span class="comment">% elevation bins centers</span>
+z_center = z_edges(1:end-1)+mean(diff(z_edges))/2;
+<span class="comment">% count no snow pixels</span>
+ns = histcounts(z(ixs),z_edges);
+<span class="comment">% count cloud pixels</span>
+[nc,~] = histcounts(z(ixc),z_edges);
+[nz,~] = histcounts(z,z_edges);
+[nns,~] = histcounts(z(ixns),z_edges);
+</pre><h2>Find snowline elevation<a name="4"></a></h2><p>Minimize sum of snow covered pixels below zs and land pixels above zs Kraj?? et al. 2014</p><pre class="codeinput">pspl=@(x) nnz(ixs&amp;z&lt;x) + nnz(ixns&amp;z&gt;x);
+zs=fminbnd(pspl,double(z1),double(z2),optimset(<span class="string">'TolX'</span>,10));
+</pre><h2>Test result<a name="5"></a></h2><pre class="codeinput">figure(1),clf,hold <span class="string">on</span>
+zx=1000:100:3000;
+plot(zx,arrayfun(pspl,zx),<span class="string">'-'</span>)
+plot(zs,pspl(zs),<span class="string">'ro'</span>)
+ylabel(<span class="string">'P_S+P_L'</span>)
+xlabel(<span class="string">'RSLE (m)'</span>)
+legend(<span class="string">'Test values'</span>,<span class="string">'Optimum'</span>)
+</pre><img vspace="5" hspace="5" src="plotSnowLine_01.png" alt=""> <h2>Plot results<a name="6"></a></h2><pre class="codeinput">figure(2),clf
+barh(z_center,nz*a,1,<span class="string">'facecolor'</span>,.8*[1 1 1]);
+hold <span class="string">on</span>
+barh(z_center,(nc+ns)*a,1,<span class="string">'facecolor'</span>,.5*[1 1 1]);
+barh(z_center,ns*a,1,<span class="string">'facecolor'</span>,<span class="string">'c'</span>);
+hrf=refline(0,zs);
+set(hrf,<span class="string">'Color'</span>,<span class="string">'r'</span>,<span class="string">'LineStyle'</span>,<span class="string">'--'</span>,<span class="string">'LineWidth'</span>,2)
+xlabel(<span class="string">'Area (sq. km)'</span>)
+ylabel(<span class="string">'Elevation (m above WGS84)'</span>)
+legend(<span class="string">'All pixels'</span>,<span class="string">'Cloud'</span>,<span class="string">'Snow'</span>,<span class="string">'Snowline'</span>)
+title(sprintf(<span class="string">'%s snowline: %4.4g m above WGS-84'</span>,<span class="string">'05 Feb 2021'</span>,zs))
+</pre><img vspace="5" hspace="5" src="plotSnowLine_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Load data
+% Data in WGS84 UTM44N, 20m resolution, extent 340200m 3391600m 402980m 3338560m
+% Copernicus 30 m DEM resampled to 20m
+[z,R]=geotiffread('ROIbb2/dem');
+% Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)
+f=geotiffread('ROIbb2/fsc05feb');
+% pixel area in km2
+a=1e-6*R.SampleSpacingInWorldX*R.SampleSpacingInWorldY;
+%% Prepare masks
+% no snow mask
+ixns=f==0;
+% snow mask
+ixs=f>0&f<=100;
+% cloud mask
+ixc=f>100;
+%% Count pixels by elevation bins
+% lower elevation edge
+z1=round(min(z(:))/100)*100;
+% upper elevation edge
+z2=round(max(z(:))/100)*100;
+% elevation bins edges
+z_edges = z1:100:z2;
+% elevation bins centers
+z_center = z_edges(1:end-1)+mean(diff(z_edges))/2;
+% count no snow pixels
+ns = histcounts(z(ixs),z_edges);
+% count cloud pixels
+[nc,~] = histcounts(z(ixc),z_edges);
+[nz,~] = histcounts(z,z_edges);
+[nns,~] = histcounts(z(ixns),z_edges);
+%% Find snowline elevation
+% Minimize sum of snow covered pixels below zs and land pixels above zs
+% Kraj?? et al. 2014
+pspl=@(x) nnz(ixs&z<x) + nnz(ixns&z>x);
+zs=fminbnd(pspl,double(z1),double(z2),optimset('TolX',10));
+%% Test result
+figure(1),clf,hold on
+zx=1000:100:3000;
+plot(zx,arrayfun(pspl,zx),'-')
+plot(zs,pspl(zs),'ro')
+ylabel('P_S+P_L')
+xlabel('RSLE (m)')
+legend('Test values','Optimum')
+%% Plot results
+figure(2),clf
+barh(z_center,nz*a,1,'facecolor',.8*[1 1 1]);
+hold on
+barh(z_center,(nc+ns)*a,1,'facecolor',.5*[1 1 1]);
+barh(z_center,ns*a,1,'facecolor','c');
+hrf=refline(0,zs);
+set(hrf,'Color','r','LineStyle','REPLACE_WITH_DASH_DASH','LineWidth',2)
+xlabel('Area (sq. km)')
+ylabel('Elevation (m above WGS84)')
+legend('All pixels','Cloud','Snow','Snowline')
+title(sprintf('%s snowline: %4.4g m above WGS-84','05 Feb 2021',zs))
+##### SOURCE END #####
+--></body></html>
