@@ -4,7 +4,7 @@
 % Copernicus 30 m DEM resampled to 20m
 [z,R]=geotiffread('ROIbb2/dem');
 % Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)
-d='10feb'; 
+d='05feb'; 
 %d='10feb';
 f=geotiffread(['ROIbb2/fsc' d]);
 % pixel area in km2

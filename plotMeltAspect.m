@@ -16,4 +16,5 @@ r(isnan(r))=0;
 polar(t,r,'-')
 % north up and angles increasing anti-clockwise 
 view(90, -90);
-title('Polar histogram: areas of snowmelt between 05 and 10 Feb')
+title({'Snowmelt area between 05 and 10 Feb', '% of clear-sky pixels by aspect bin'})
+saveas(1,'html/meltAspect.png')
