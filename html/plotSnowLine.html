@@ -69,7 +69,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
   </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Load data</a></li><li><a href="#2">Prepare masks</a></li><li><a href="#3">Count pixels by elevation bins</a></li><li><a href="#4">Find snowline elevation</a></li><li><a href="#5">Test result</a></li><li><a href="#6">Plot results</a></li></ul></div><h2>Load data<a name="1"></a></h2><p>Data in WGS84 UTM44N, 20m resolution, extent 340200m 3391600m 402980m 3338560m</p><pre class="codeinput"><span class="comment">% Copernicus 30 m DEM resampled to 20m</span>
 [z,R]=geotiffread(<span class="string">'ROIbb2/dem'</span>);
 <span class="comment">% Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)</span>
-f=geotiffread(<span class="string">'ROIbb2/fsc05feb'</span>);
+d=<span class="string">'05feb'</span>;
+<span class="comment">%d='10feb';</span>
+f=geotiffread([<span class="string">'ROIbb2/fsc'</span> d]);
 <span class="comment">% pixel area in km2</span>
 a=1e-6*R.SampleSpacingInWorldX*R.SampleSpacingInWorldY;
 </pre><h2>Prepare masks<a name="2"></a></h2><pre class="codeinput"><span class="comment">% no snow mask</span>
@@ -95,7 +97,7 @@ ns = histcounts(z(ixs),z_edges);
 </pre><h2>Find snowline elevation<a name="4"></a></h2><p>Minimize sum of snow covered pixels below zs and land pixels above zs (Krajci et al. 2014)</p><pre class="codeinput">pspl=@(x) nnz(ixs&amp;z&lt;x) + nnz(ixns&amp;z&gt;x);
 zs=fminbnd(pspl,double(z1),double(z2),optimset(<span class="string">'TolX'</span>,10));
 </pre><h2>Test result<a name="5"></a></h2><pre class="codeinput">figure(1),clf,hold <span class="string">on</span>
-zx=1000:100:3000;
+zx=z1:100:z2;
 plot(zx,arrayfun(pspl,zx),<span class="string">'-'</span>)
 plot(zs,pspl(zs),<span class="string">'ro'</span>)
 ylabel(<span class="string">'P_S+P_L'</span>)
@@ -111,7 +113,7 @@ set(hrf,<span class="string">'Color'</span>,<span class="string">'r'</span>,<spa
 xlabel(<span class="string">'Area (sq. km)'</span>)
 ylabel(<span class="string">'Elevation (m above WGS84)'</span>)
 legend(<span class="string">'All pixels'</span>,<span class="string">'Cloud'</span>,<span class="string">'Snow'</span>,<span class="string">'Snowline'</span>)
-title(sprintf(<span class="string">'%s snowline: %4.4g m above WGS-84'</span>,<span class="string">'05 Feb 2021'</span>,zs))
+title(sprintf(<span class="string">'%s snowline: %4.4g m above WGS-84'</span>,d,zs))
 </pre><img vspace="5" hspace="5" src="plotSnowLine_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% Load data
@@ -120,7 +122,9 @@ title(sprintf(<span class="string">'%s snowline: %4.4g m above WGS-84'</span>,<s
 % Copernicus 30 m DEM resampled to 20m
 [z,R]=geotiffread('ROIbb2/dem');
 % Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)
-f=geotiffread('ROIbb2/fsc05feb');
+d='05feb'; 
+%d='10feb';
+f=geotiffread(['ROIbb2/fsc' d]);
 % pixel area in km2
 a=1e-6*R.SampleSpacingInWorldX*R.SampleSpacingInWorldY;
 %% Prepare masks
@@ -154,7 +158,7 @@ pspl=@(x) nnz(ixs&z<x) + nnz(ixns&z>x);
 zs=fminbnd(pspl,double(z1),double(z2),optimset('TolX',10));
 %% Test result
 figure(1),clf,hold on
-zx=1000:100:3000;
+zx=z1:100:z2;
 plot(zx,arrayfun(pspl,zx),'-')
 plot(zs,pspl(zs),'ro')
 ylabel('P_S+P_L')
@@ -171,6 +175,6 @@ set(hrf,'Color','r','LineStyle','REPLACE_WITH_DASH_DASH','LineWidth',2)
 xlabel('Area (sq. km)')
 ylabel('Elevation (m above WGS84)')
 legend('All pixels','Cloud','Snow','Snowline')
-title(sprintf('%s snowline: %4.4g m above WGS-84','05 Feb 2021',zs))
+title(sprintf('%s snowline: %4.4g m above WGS-84',d,zs))
 ##### SOURCE END #####
 --></body></html>
