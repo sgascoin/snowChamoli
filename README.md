@@ -37,7 +37,7 @@ Prepare masks
 % no snow mask
 ixns = f==0;
 % snow mask
-ixs = f>0&f<=100;
+ixs = f>0 & f<=100;
 % cloud mask
 ixc = f>100;
 ```
