@@ -21,7 +21,7 @@ Contents
 Load data
 ---------
 
-Sentinel-2 snow product: 2021 Feb 05 
+Sentinel-2 snow product (2021 Feb 05) obtained by atmospheric correction of level-1C image ([MAJA](https://logiciels.cnes.fr/en/content/maja)) and snow detection ([LIS](https://gitlab.orfeo-toolbox.org/remote_modules/let-it-snow/)) as described by [Gascoin et al. (2019)](https://www.earth-syst-sci-data.net/11/493/2019/essd-11-493-2019.html).
 
 All data in WGS84 UTM44N, 20m resolution, extent 340200m 3391600m 402980m
 3338560m
@@ -29,7 +29,7 @@ All data in WGS84 UTM44N, 20m resolution, extent 340200m 3391600m 402980m
 ```Matlab
 % Copernicus 30 m DEM resampled to 20m
 [z,R] = geotiffread('ROIbb2/dem');
-% Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)
+% Sentinel-2 FSC product from MAJA-LIS 
 f = geotiffread('ROIbb2/fsc05feb');
 % pixel area in km2
 a = 1e-6*R.SampleSpacingInWorldX*R.SampleSpacingInWorldY;
