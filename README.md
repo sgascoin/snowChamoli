@@ -103,3 +103,7 @@ title(sprintf('%s snowline: %4.4g m above WGS-84','05 Feb 2021',zs))
 ![](html/plotSnowLine_02.png)
 
 
+Same analysis for 2021 Feb 10
+------------
+![](html/plotSnowLine_01b.png)
+![](html/plotSnowLine_02b.png)
