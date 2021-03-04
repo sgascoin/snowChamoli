@@ -66,17 +66,20 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Load data</a></li><li><a href="#2">Prepare masks</a></li><li><a href="#3">Count pixels by elevation bins</a></li><li><a href="#4">Find snowline elevation</a></li><li><a href="#5">Test result</a></li><li><a href="#6">Plot results</a></li></ul></div><h2>Load data<a name="1"></a></h2><p>Data in WGS84 UTM44N, 20m resolution, extent 340200m 3391600m 402980m 3338560m Copernicus 30 m DEM resampled to 20m</p><pre class="codeinput">[z,R]=geotiffread(<span class="string">'ROIbb2/dem'</span>);
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Load data</a></li><li><a href="#2">Prepare masks</a></li><li><a href="#3">Count pixels by elevation bins</a></li><li><a href="#4">Find snowline elevation</a></li><li><a href="#5">Test result</a></li><li><a href="#6">Plot results</a></li></ul></div><h2>Load data<a name="1"></a></h2><p>Data in WGS84 UTM44N, 20m resolution, extent 340200m 3391600m 402980m 3338560m</p><pre class="codeinput"><span class="comment">% Copernicus 30 m DEM resampled to 20m</span>
+[z,R]=geotiffread(<span class="string">'ROIbb2/dem'</span>);
 <span class="comment">% Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)</span>
 f=geotiffread(<span class="string">'ROIbb2/fsc05feb'</span>);
 <span class="comment">% pixel area in km2</span>
 a=1e-6*R.SampleSpacingInWorldX*R.SampleSpacingInWorldY;
-</pre><h2>Prepare masks<a name="2"></a></h2><p>no snow mask</p><pre class="codeinput">ixns=f==0;
+</pre><h2>Prepare masks<a name="2"></a></h2><pre class="codeinput"><span class="comment">% no snow mask</span>
+ixns=f==0;
 <span class="comment">% snow mask</span>
 ixs=f&gt;0&amp;f&lt;=100;
 <span class="comment">% cloud mask</span>
 ixc=f&gt;100;
-</pre><h2>Count pixels by elevation bins<a name="3"></a></h2><p>lower elevation edge</p><pre class="codeinput">z1=round(min(z(:))/100)*100;
+</pre><h2>Count pixels by elevation bins<a name="3"></a></h2><pre class="codeinput"><span class="comment">% lower elevation edge</span>
+z1=round(min(z(:))/100)*100;
 <span class="comment">% upper elevation edge</span>
 z2=round(max(z(:))/100)*100;
 <span class="comment">% elevation bins edges</span>
@@ -89,7 +92,7 @@ ns = histcounts(z(ixs),z_edges);
 [nc,~] = histcounts(z(ixc),z_edges);
 [nz,~] = histcounts(z,z_edges);
 [nns,~] = histcounts(z(ixns),z_edges);
-</pre><h2>Find snowline elevation<a name="4"></a></h2><p>Minimize sum of snow covered pixels below zs and land pixels above zs Kraj?? et al. 2014</p><pre class="codeinput">pspl=@(x) nnz(ixs&amp;z&lt;x) + nnz(ixns&amp;z&gt;x);
+</pre><h2>Find snowline elevation<a name="4"></a></h2><p>Minimize sum of snow covered pixels below zs and land pixels above zs (Krajci et al. 2014)</p><pre class="codeinput">pspl=@(x) nnz(ixs&amp;z&lt;x) + nnz(ixns&amp;z&gt;x);
 zs=fminbnd(pspl,double(z1),double(z2),optimset(<span class="string">'TolX'</span>,10));
 </pre><h2>Test result<a name="5"></a></h2><pre class="codeinput">figure(1),clf,hold <span class="string">on</span>
 zx=1000:100:3000;
@@ -113,6 +116,7 @@ title(sprintf(<span class="string">'%s snowline: %4.4g m above WGS-84'</span>,<s
 ##### SOURCE BEGIN #####
 %% Load data
 % Data in WGS84 UTM44N, 20m resolution, extent 340200m 3391600m 402980m 3338560m
+
 % Copernicus 30 m DEM resampled to 20m
 [z,R]=geotiffread('ROIbb2/dem');
 % Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)
@@ -120,6 +124,7 @@ f=geotiffread('ROIbb2/fsc05feb');
 % pixel area in km2
 a=1e-6*R.SampleSpacingInWorldX*R.SampleSpacingInWorldY;
 %% Prepare masks
+
 % no snow mask
 ixns=f==0;
 % snow mask
@@ -127,6 +132,7 @@ ixs=f>0&f<=100;
 % cloud mask
 ixc=f>100;
 %% Count pixels by elevation bins
+
 % lower elevation edge
 z1=round(min(z(:))/100)*100;
 % upper elevation edge
@@ -143,7 +149,7 @@ ns = histcounts(z(ixs),z_edges);
 [nns,~] = histcounts(z(ixns),z_edges);
 %% Find snowline elevation
 % Minimize sum of snow covered pixels below zs and land pixels above zs
-% Kraj?? et al. 2014
+% (Krajci et al. 2014)
 pspl=@(x) nnz(ixs&z<x) + nnz(ixns&z>x);
 zs=fminbnd(pspl,double(z1),double(z2),optimset('TolX',10));
 %% Test result
