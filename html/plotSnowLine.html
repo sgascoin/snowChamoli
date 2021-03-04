@@ -69,7 +69,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
   </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Load data</a></li><li><a href="#2">Prepare masks</a></li><li><a href="#3">Count pixels by elevation bins</a></li><li><a href="#4">Find snowline elevation</a></li><li><a href="#5">Test result</a></li><li><a href="#6">Plot results</a></li></ul></div><h2>Load data<a name="1"></a></h2><p>Data in WGS84 UTM44N, 20m resolution, extent 340200m 3391600m 402980m 3338560m</p><pre class="codeinput"><span class="comment">% Copernicus 30 m DEM resampled to 20m</span>
 [z,R]=geotiffread(<span class="string">'ROIbb2/dem'</span>);
 <span class="comment">% Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)</span>
-d=<span class="string">'05feb'</span>;
+d=<span class="string">'10feb'</span>;
 <span class="comment">%d='10feb';</span>
 f=geotiffread([<span class="string">'ROIbb2/fsc'</span> d]);
 <span class="comment">% pixel area in km2</span>
@@ -122,7 +122,7 @@ title(sprintf(<span class="string">'%s snowline: %4.4g m above WGS-84'</span>,d,
 % Copernicus 30 m DEM resampled to 20m
 [z,R]=geotiffread('ROIbb2/dem');
 % Sentinel-2 FSC product from MAJA-LIS (Gascoin et al. 2019)
-d='05feb'; 
+d='10feb'; 
 %d='10feb';
 f=geotiffread(['ROIbb2/fsc' d]);
 % pixel area in km2
