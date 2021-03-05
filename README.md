@@ -83,7 +83,7 @@ Test result
 
 ```Matlab
 figure(1),clf,hold on
-zx = 1000:100:3000;
+zx=z1:100:z2;
 plot(zx,arrayfun(pspl,zx),'-')
 plot(zs,pspl(zs),'ro')
 ylabel('P_S+P_L')
