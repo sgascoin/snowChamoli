@@ -16,7 +16,7 @@ c = f1<=100 & f2<=100 ;
 figure(1),clf
 [t,rc]=rose(deg2rad(za(c)),deg2rad(0:18:360));
 [~,rm]=rose(deg2rad(za(m)),deg2rad(0:18:360));
-r=rm./rc;
+r=100*rm./rc;
 r(isnan(r))=0;
 polar(t,r,'-')
 % north up and angles increasing anti-clockwise 
